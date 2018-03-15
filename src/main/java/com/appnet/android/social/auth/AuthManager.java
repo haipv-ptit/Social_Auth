@@ -27,6 +27,7 @@ public class AuthManager implements OnConnectionFailedListener {
     }
 
     public void signInFacebook(OnLoginListener loginListener) {
+        mOnLoginListener = loginListener;
         mCurrentRequestCode = RC_LOGIN_FACEBOOK;
         if(mFacebookAuth == null) {
             mFacebookAuth = new FacebookAuth(mActivity);
