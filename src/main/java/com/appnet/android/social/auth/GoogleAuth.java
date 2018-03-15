@@ -3,6 +3,7 @@ package com.appnet.android.social.auth;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentActivity;
+import android.text.TextUtils;
 
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -18,17 +19,19 @@ class GoogleAuth implements GoogleApiClient.OnConnectionFailedListener {
     private GoogleApiClient mGoogleApiClient;
     private OnConnectionFailedListener mOnConnectionFailedListener;
 
-    GoogleAuth(FragmentActivity activity, OnConnectionFailedListener listener) {
+    GoogleAuth(FragmentActivity activity, OnConnectionFailedListener listener, String clientId) {
         mActivity = activity;
         mOnConnectionFailedListener = listener;
-        init();
+        init(clientId);
     }
 
-    private void init() {
-        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                // .requestIdToken(AppConfig.APP_KEY)
-                .requestEmail()
-                .build();
+    private void init(String clientId) {
+        GoogleSignInOptions.Builder builder = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN);
+        if(!TextUtils.isEmpty(clientId)) {
+            builder.requestIdToken(clientId);
+        }
+        builder.requestEmail();
+        GoogleSignInOptions gso = builder.build();
         mGoogleApiClient = new GoogleApiClient.Builder(mActivity)
                 .enableAutoManage(mActivity, this)
                 .addApi(Auth.GOOGLE_SIGN_IN_API, gso)

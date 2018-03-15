@@ -17,38 +17,16 @@ public class AuthManager implements OnConnectionFailedListener {
         mActivity = activity;
     }
 
-    public void signOut(int requestCode, final OnLogoutListener listener) {
-        switch (requestCode) {
-            case RC_LOGIN_GOOGLE:
-                signOutGoogle(listener);
-                break;
-            case RC_LOGIN_FACEBOOK:
-                signOutFacebook();
-                break;
-        }
-    }
-
-    public void signIn(int requestCode, OnLoginListener loginListener) {
+    public void signInGoogle(String clientId, OnLoginListener loginListener) {
         mOnLoginListener = loginListener;
-        switch (requestCode) {
-            case RC_LOGIN_GOOGLE:
-                signInGoogle();
-                break;
-            case RC_LOGIN_FACEBOOK:
-                signInFacebook();
-                break;
-        }
-    }
-
-    private void signInGoogle() {
         mCurrentRequestCode = RC_LOGIN_GOOGLE;
         if(mGoogleAuth == null) {
-            mGoogleAuth = new GoogleAuth(mActivity, this);
+            mGoogleAuth = new GoogleAuth(mActivity, this, clientId);
         }
         mGoogleAuth.signIn(mCurrentRequestCode);
     }
 
-    private void signInFacebook() {
+    public void signInFacebook(OnLoginListener loginListener) {
         mCurrentRequestCode = RC_LOGIN_FACEBOOK;
         if(mFacebookAuth == null) {
             mFacebookAuth = new FacebookAuth(mActivity);
@@ -56,9 +34,9 @@ public class AuthManager implements OnConnectionFailedListener {
         mFacebookAuth.login(mOnLoginListener);
     }
 
-    private void signOutGoogle(final OnLogoutListener listener) {
+    private void signOutGoogle(String clientId, final OnLogoutListener listener) {
         if(mGoogleAuth == null) {
-            mGoogleAuth = new GoogleAuth(mActivity, this);
+            mGoogleAuth = new GoogleAuth(mActivity, this, clientId);
         }
         mGoogleAuth.signOut(listener);
     }
