@@ -23,6 +23,7 @@ public class AuthManager implements OnConnectionFailedListener {
         if(mGoogleAuth == null) {
             mGoogleAuth = new GoogleAuth(mActivity, this, clientId);
         }
+        mGoogleAuth.signOut(null);
         mGoogleAuth.signIn(mCurrentRequestCode);
     }
 
@@ -32,6 +33,7 @@ public class AuthManager implements OnConnectionFailedListener {
         if(mFacebookAuth == null) {
             mFacebookAuth = new FacebookAuth(mActivity);
         }
+        mFacebookAuth.logout();
         mFacebookAuth.login(mOnLoginListener);
     }
 
