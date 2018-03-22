@@ -2,7 +2,9 @@ package com.appnet.android.social.auth;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentActivity;
 import android.text.TextUtils;
 
@@ -49,15 +51,34 @@ class GoogleAuth implements GoogleApiClient.OnConnectionFailedListener {
         activity.startActivityForResult(signInIntent, requestCode);
     }
 
-    void signOut(final OnLogoutListener listener) {
+    private void internalSignOut(final OnLogoutListener listener) {
         Auth.GoogleSignInApi.signOut(mGoogleApiClient).setResultCallback(new ResultCallback<Status>() {
             @Override
             public void onResult(@NonNull Status status) {
-                if(listener != null) {
+                if (listener != null) {
                     listener.onLogoutSuccess();
                 }
             }
         });
+    }
+
+    void signOut(final OnLogoutListener listener) {
+        if(mGoogleApiClient.isConnected()) {
+            internalSignOut(listener);
+        } else {
+            mGoogleApiClient.registerConnectionCallbacks(new GoogleApiClient.ConnectionCallbacks() {
+                @Override
+                public void onConnected(@Nullable Bundle bundle) {
+                    internalSignOut(listener);
+                }
+
+                @Override
+                public void onConnectionSuspended(int i) {
+
+                }
+            });
+            mGoogleApiClient.connect();
+        }
     }
 
     SocialAccount getSignInAccount(Intent data) {
