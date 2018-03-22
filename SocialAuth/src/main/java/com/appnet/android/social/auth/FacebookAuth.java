@@ -1,8 +1,8 @@
 package com.appnet.android.social.auth;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
@@ -22,21 +22,17 @@ class FacebookAuth implements FacebookCallback<LoginResult> {
     private static final List<String> PERMISSIONS = Arrays.asList("email", "public_profile");
 
     private OnLoginListener mOnLoginListener;
-    private final Activity mActivity;
 
     private CallbackManager mCallbackManager;
 
-    FacebookAuth(Activity activity) {
-        mActivity = activity;
+    FacebookAuth() {
         mCallbackManager = CallbackManager.Factory.create();
-
     }
 
-    void login(OnLoginListener onLoginListener) {
-        LoginManager.getInstance().logOut();
+    void login(FragmentActivity activity, OnLoginListener onLoginListener) {
         mOnLoginListener = onLoginListener;
         LoginManager.getInstance().registerCallback(mCallbackManager, this);
-        LoginManager.getInstance().logInWithReadPermissions(mActivity, PERMISSIONS);
+        LoginManager.getInstance().logInWithReadPermissions(activity, PERMISSIONS);
     }
 
     void logout() {
@@ -68,6 +64,9 @@ class FacebookAuth implements FacebookCallback<LoginResult> {
 
     @Override
     public void onCancel() {
+        if(mOnLoginListener != null) {
+            mOnLoginListener.onLoginError(0, "");
+        }
     }
 
     @Override

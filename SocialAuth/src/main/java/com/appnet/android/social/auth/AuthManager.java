@@ -7,44 +7,42 @@ import android.support.v4.app.FragmentActivity;
 public class AuthManager implements OnConnectionFailedListener {
     public static final int RC_LOGIN_GOOGLE = 1000;
     public static final int RC_LOGIN_FACEBOOK = 2000;
-    private final FragmentActivity mActivity;
     private GoogleAuth mGoogleAuth;
     private FacebookAuth mFacebookAuth;
     private int mCurrentRequestCode = 0;
     private OnLoginListener mOnLoginListener;
 
-    public AuthManager(FragmentActivity activity) {
-        mActivity = activity;
+    public AuthManager() {
     }
 
-    public void signInGoogle(String clientId, OnLoginListener loginListener) {
+    public void signInGoogle(FragmentActivity activity, String clientId, OnLoginListener loginListener) {
         mOnLoginListener = loginListener;
         mCurrentRequestCode = RC_LOGIN_GOOGLE;
         if(mGoogleAuth == null) {
-            mGoogleAuth = new GoogleAuth(mActivity, this, clientId);
+            mGoogleAuth = new GoogleAuth(activity, this, clientId);
         }
-        mGoogleAuth.signIn(mCurrentRequestCode);
+        mGoogleAuth.signIn(activity, mCurrentRequestCode);
     }
 
-    public void signInFacebook(OnLoginListener loginListener) {
+    public void signInFacebook(FragmentActivity activity, OnLoginListener loginListener) {
         mOnLoginListener = loginListener;
         mCurrentRequestCode = RC_LOGIN_FACEBOOK;
         if(mFacebookAuth == null) {
-            mFacebookAuth = new FacebookAuth(mActivity);
+            mFacebookAuth = new FacebookAuth();
         }
-        mFacebookAuth.login(mOnLoginListener);
+        mFacebookAuth.login(activity, mOnLoginListener);
     }
 
-    private void signOutGoogle(String clientId, final OnLogoutListener listener) {
+    private void signOutGoogle(FragmentActivity activity, String clientId, final OnLogoutListener listener) {
         if(mGoogleAuth == null) {
-            mGoogleAuth = new GoogleAuth(mActivity, this, clientId);
+            mGoogleAuth = new GoogleAuth(activity, this, clientId);
         }
         mGoogleAuth.signOut(listener);
     }
 
     private void signOutFacebook() {
         if(mFacebookAuth == null) {
-            mFacebookAuth = new FacebookAuth(mActivity);
+            mFacebookAuth = new FacebookAuth();
         }
         mFacebookAuth.logout();
     }
@@ -63,6 +61,7 @@ public class AuthManager implements OnConnectionFailedListener {
 
     private void handleLoginGoogle(int requestCode, int resultCode, Intent data) {
         if(resultCode == Activity.RESULT_CANCELED) {
+            mOnLoginListener.onLoginError(requestCode, "");
             return;
         }
         if(mGoogleAuth != null) {

@@ -1,5 +1,6 @@
 package com.appnet.android.social.auth;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentActivity;
@@ -11,27 +12,27 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
 
 class GoogleAuth implements GoogleApiClient.OnConnectionFailedListener {
-    private final FragmentActivity mActivity;
     private GoogleApiClient mGoogleApiClient;
     private OnConnectionFailedListener mOnConnectionFailedListener;
 
     GoogleAuth(FragmentActivity activity, OnConnectionFailedListener listener, String clientId) {
-        mActivity = activity;
         mOnConnectionFailedListener = listener;
-        init(clientId);
+        init(activity, clientId);
     }
 
-    private void init(String clientId) {
+    private void init(FragmentActivity activity, String clientId) {
         GoogleSignInOptions.Builder builder = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN);
         if(!TextUtils.isEmpty(clientId)) {
             builder.requestIdToken(clientId);
         }
         builder.requestEmail();
         GoogleSignInOptions gso = builder.build();
-        mGoogleApiClient = new GoogleApiClient.Builder(mActivity)
-                .enableAutoManage(mActivity, this)
+        mGoogleApiClient = new GoogleApiClient.Builder(activity)
+                .enableAutoManage(activity, this)
                 .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
                 .build();
     }
@@ -43,14 +44,20 @@ class GoogleAuth implements GoogleApiClient.OnConnectionFailedListener {
         }
     }
 
-    void signIn(int requestCode) {
-        Auth.GoogleSignInApi.signOut(mGoogleApiClient);
+    void signIn(Activity activity, int requestCode) {
         Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
-        mActivity.startActivityForResult(signInIntent, requestCode);
+        activity.startActivityForResult(signInIntent, requestCode);
     }
 
     void signOut(final OnLogoutListener listener) {
-        Auth.GoogleSignInApi.signOut(mGoogleApiClient);
+        Auth.GoogleSignInApi.signOut(mGoogleApiClient).setResultCallback(new ResultCallback<Status>() {
+            @Override
+            public void onResult(@NonNull Status status) {
+                if(listener != null) {
+                    listener.onLogoutSuccess();
+                }
+            }
+        });
     }
 
     SocialAccount getSignInAccount(Intent data) {
