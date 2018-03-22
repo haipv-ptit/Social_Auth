@@ -33,14 +33,14 @@ public class AuthManager implements OnConnectionFailedListener {
         mFacebookAuth.login(activity, mOnLoginListener);
     }
 
-    private void signOutGoogle(FragmentActivity activity, String clientId, final OnLogoutListener listener) {
+    public void signOutGoogle(FragmentActivity activity, String clientId, final OnLogoutListener listener) {
         if(mGoogleAuth == null) {
             mGoogleAuth = new GoogleAuth(activity, this, clientId);
         }
         mGoogleAuth.signOut(listener);
     }
 
-    private void signOutFacebook() {
+    public void signOutFacebook() {
         if(mFacebookAuth == null) {
             mFacebookAuth = new FacebookAuth();
         }
